@@ -9,12 +9,12 @@ on:
 jobs:
   build:
     name: Build
-    runs-on: macos-10.13
+    runs-on: macos-10.15
     # 10.15
     strategy:
       matrix:
         # qt_ver: [5.12.10, 5.15.2]
-        qt_ver: [5.12.3]
+        qt_ver: [5.12.10]
         qt_target: [ios]
     steps:
       - name: Install Qt
