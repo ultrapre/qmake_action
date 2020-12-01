@@ -29,5 +29,5 @@ jobs:
           fetch-depth: 1
       - name: build ios
         run: |
-          qmake -r -spec macx-ios-clang CONFIG+=release CONFIG+=iphoneos
+          qmake
           make
