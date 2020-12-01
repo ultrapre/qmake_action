@@ -5,6 +5,7 @@ on:
       - v*
   workflow_dispatch:
   
+  
 jobs:
   build:
     name: Build
@@ -12,7 +13,7 @@ jobs:
     strategy:
       matrix:
         os: [macos-latest]
-        qt_ver: [5.15.1]
+        qt_ver: [5.12.6]
         qt_target: [ios]
     steps:
       - name: Install Qt
