@@ -22,3 +22,16 @@ FORMS += \
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+android{
+    assets.path = /assets/Data
+    assets.files = Data/*
+    INSTALLS+=assets
+}
+
+ios {
+assets.files = Data/base_locations.bin.gz
+QMAKE_BUNDLE_DATA += assets
+}
+
+ANDROID_ABIS = armeabi-v7a
