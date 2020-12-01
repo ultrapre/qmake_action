@@ -12,7 +12,8 @@ jobs:
     runs-on: macos-10.15
     strategy:
       matrix:
-        qt_ver: [5.12.10, 5.15.2]
+        # qt_ver: [5.12.10, 5.15.2]
+        qt_ver: [5.15.2]
         qt_target: [ios]
     steps:
       - name: Install Qt
@@ -30,4 +31,10 @@ jobs:
         run: |
           qmake -r -spec macx-ios-clang CONFIG+=release CONFIG+=iphoneos
           make
-          
+      - name: show filetrees
+        run: |
+          ls -R
+      - uses: actions/upload-artifact@v1
+        with:
+          name: Debug-APP
+          path: Release-iphonesimulator/Sample.app
