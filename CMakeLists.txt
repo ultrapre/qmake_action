@@ -34,6 +34,10 @@ set(PROJECT_SOURCES
         mainwindow.ui
 )
 
+
+SET(SDATALOC "assets")
+INSTALL(FILES Sample.pro DESTINATION ${SDATALOC})
+
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(Sample
         ${PROJECT_SOURCES}
