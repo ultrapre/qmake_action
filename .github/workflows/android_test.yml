@@ -56,7 +56,8 @@ jobs:
       run: |
         cd build
         make
-        make apk install
+        make install
+        make apk
     - name: show filetrees
       run: |
         ls -R
