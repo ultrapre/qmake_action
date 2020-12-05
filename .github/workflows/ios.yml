@@ -9,13 +9,14 @@ on:
 jobs:
   build:
     name: Build
-    runs-on: macos-10.15
+    runs-on: macos-10.14
     # 10.15
     strategy:
       matrix:
         # qt_ver: [5.12.10, 5.15.2]
         qt_ver: [5.12.10]
         qt_target: [ios]
+        target_app: [Sample]
     steps:
       - name: Install Qt
         # if: steps.cacheqt.outputs.cache-hit != 'true'
@@ -35,7 +36,12 @@ jobs:
       - name: show filetrees
         run: |
           ls -R
+          mkdir ${{ matrix.target_app }}
+          mkdir ${{ matrix.target_app }}/Payload
+          cp -r Release-iphonesimulator/${{ matrix.target_app }}.app ${{ matrix.target_app }}/Payload/${{ matrix.target_app }}.app
+          cd ${{ matrix.target_app }}
+          zip -r ${{ matrix.target_app }}-${{ matrix.qt_ver }}-${{ matrix.xcode }}.ipa Payload
       - uses: actions/upload-artifact@v1
         with:
           name: Debug-APP
-          path: Release-iphonesimulator/Sample.app
+          path: ${{ matrix.target_app }}/${{ matrix.target_app }}-${{ matrix.qt_ver }}-${{ matrix.xcode }}.ipa
