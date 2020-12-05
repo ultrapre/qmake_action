@@ -1,0 +1,142 @@
+# GUIをheadlessで起動させるための仮想環境を立ち上げる
+$ Xvfb :10 -ac -screen 0 1024x768x24 &
+
+# スクリプトとして実行した場合、環境変数が読み込めないので実行時に環境変数を設定
+$ export DISPLAY=":10"
+
+# stellarium実行
+$ ./src/stellarium
+
+
+
+
+
+
+
+
+
+##ssc
+StelMovementMgr.zoomTo(180) ;
+// 緯度・経度を指定
+core.setObserverLocation(35.685, 139.751, 0);
+StelMovementMgr.lookEast();
+core.wait(0.0);
+// 'hosizora.png'という名前でスクリーンショットが保存される
+core.screenshot('hosizora', false, '', true);
+core.quitStellarium();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#!/bin/sh
+
+# GUIをheadlessで起動させるための仮想環境
+Xvfb :10 -ac -screen 0 1024x768x24 &
+
+# スクリプトとして実行した場合、環境変数が読み込めないので実行時に環境変数を設定
+export DISPLAY=":10"
+export HOME=/home/www-data
+
+# stellariumの--screenshot-dirや--startup-scriptオプションはフルパスじゃないと読み込めない
+export EXEC_STELPATH=/var/www/html/stellarium
+./stellarium/builds/unix/src/stellarium --screenshot-dir $EXEC_STELPATH/screenshots --startup-script $EXEC_STELPATH/scripts/screencapture.ssc --full-screen no
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### http://localhost:8080/index.php?longitude=139.1562&latitude=35.2676
+
+
+
+
+
+
+
+
+
+
+
+
+
+<?php
+
+// 緯度・経度を受け取る
+$lon = $_GET['longitude'];
+$lat = $_GET['latitude'];
+
+$script_path = './stellarium/scripts/screencapture.ssc';
+$screen_shot_name = md5(uniqid(rand(), true));
+$screen_shot_path = "./stellarium/screenshots/{$screen_shot_name}.png";
+
+// stellariumで使用するスクリプトを動的に作成
+$script = "
+StelMovementMgr.zoomTo(180) ;
+core.setObserverLocation({$lon}, {$lat}, 0);
+StelMovementMgr.lookEast();
+core.wait(0.0);
+core.screenshot('{$screen_shot_name}', false, '', true);
+core.quitStellarium();
+";
+$fp = fopen($script_path, 'w');
+fwrite($fp, $script);
+fclose($fp);
+
+// PHPでスクリプトを実行する際、stdoutとstderrを逃しておかないとプロセスがshellに取られっぱなしになり戻ってこない
+exec('sh ./stellarium/exec.sh > /tmp/stellarium-stdout 2>/tmp/stellarium-stderr &');
+while(!file_exists($screen_shot_path)) {
+    sleep(1);
+}
+
+// ファイルが見つかった瞬間に描画すると生成途中の画像が表示され、画像が見切れてしまうため1秒待つ
+sleep(1);
+
+// stellariumは一度起動したら起動しっぱなしになるのでスクリーンショットが保存でき次第KILLする
+exec("ps -ef | grep stellarium |grep -v grep | awk '{print $2}' | xargs kill");
+?>
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>星</title>
+</head>
+<body>
+    <img src="<?= $screen_shot_path ?>" alt="hosizora">
+</body>
+</html>
