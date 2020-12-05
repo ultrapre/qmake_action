@@ -43,5 +43,5 @@ jobs:
           zip -r ${{ matrix.target_app }}-${{ matrix.qt_ver }}-${{ matrix.xcode }}.ipa Payload
       - uses: actions/upload-artifact@v1
         with:
-          name: Debug-APP
+          name: ${{ matrix.target_app }}-${{ matrix.qt_ver }}-${{ matrix.xcode }}.ipa
           path: ${{ matrix.target_app }}/${{ matrix.target_app }}-${{ matrix.qt_ver }}-${{ matrix.xcode }}.ipa
