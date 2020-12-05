@@ -140,3 +140,140 @@ exec("ps -ef | grep stellarium |grep -v grep | awk '{print $2}' | xargs kill");
     <img src="<?= $screen_shot_path ?>" alt="hosizora">
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import UIKit
+import CoreLocation
+import AVFoundation
+
+class ViewController: UIViewController, CLLocationManagerDelegate, AVCapturePhotoCaptureDelegate {
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        // 撮影ボタン
+        let takeBtn = UIButton()
+        takeBtn.frame = CGRect(x:0, y:0, width:self.view.frame.width*0.5, height:self.view.frame.height*0.07)
+        takeBtn.center = CGPoint(x:self.view.frame.width/2, y:self.view.frame.height*0.95);
+        takeBtn.setTitle("shot", for: .normal)
+        takeBtn.backgroundColor = .blue
+        takeBtn.addTarget(self, action: #selector(takePhoto(_:)), for: UIControlEvents.touchUpInside)
+        self.view.addSubview(takeBtn)
+    }
+
+    /*
+     * 撮影ボタンを押したらstellariumサーバーにGET通信
+     */
+    @objc func takePhoto(_ sender: UIButton) {
+        getStellariumCapture()
+    }
+
+    /*
+     * Dockerから星空の画像を取得
+     */
+    func getStellariumCapture() {
+        // 実機のiPhoneからローカル(Docker)のURLを叩くときはlocalhostではなくMacのIPを指定する
+        let url = "http://192.168.100.165:8080/index.php?longitude=\(self.nowLon)&latitude=\(self.nowLat)"
+
+        let request = NSMutableURLRequest(url: NSURL(string: url)! as URL)
+        request.httpMethod = "GET"
+        let task = URLSession.shared.dataTask(with: request as URLRequest, completionHandler: { data, response, error in
+            if (error == nil) {
+                let result = String(data: data!, encoding: String.Encoding(rawValue: String.Encoding.utf8.rawValue))?.trimmingCharacters(in: .whitespacesAndNewlines)
+                let imgURL = URL(string:result!)
+                let imgData :Data = try! Data(contentsOf: imgURL!)
+                DispatchQueue.main.async {
+                    // 明るさ・コンストラクタを調整した画像をセット
+                    self.stellarImgView.image = self.createBrightImg(orgImg:UIImage(data: imgData)!)
+                }
+            } else {
+                print(error)
+            }
+        })
+        task.resume()
+    }
+
+    /*
+     * 撮影した写真の明るさ等を調整する
+     */
+    func createBrightImg(orgImg : UIImage) -> UIImage {
+        let filter = CIFilter(name: "CIColorControls")
+        let ciImage = CIImage(image: orgImg)
+        filter?.setValue(ciImage, forKey: kCIInputImageKey)
+        // 彩度(デフォルト1)
+        filter?.setValue(2, forKey: "inputSaturation")
+        // 明るさ(0~1, デフォルトは0)
+        filter?.setValue(0.6, forKey: "inputBrightness")
+        // コントラスト(デフォルト1)
+        filter?.setValue(2, forKey: "inputContrast")
+        if let filteredImage = filter?.outputImage {
+            return UIImage(ciImage: filteredImage)
+        }
+        return orgImg
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+var stellarImgView = UIImageView()
+var photoImgView = UIImageView()
+
+override func viewDidLoad() {
+    super.viewDidLoad()
+
+    // 撮影した写真を表示するView
+    self.photoImgView.frame = CGRect(x:0, y:0, width:self.view.frame.width, height:self.view.frame.height*0.9)
+    self.photoImgView.center.x = CGFloat(self.view.frame.width/2)
+    view.addSubview(self.photoImgView)
+
+    // 上から重ねる星空画像のView
+    self.stellarImgView.frame = CGRect(x:0, y:0, width:self.view.frame.width, height:self.view.frame.height*0.9)
+    self.stellarImgView.center.x = CGFloat(self.view.frame.width/2)
+    self.stellarImgView.backgroundColor = .clear
+    self.stellarImgView.alpha = 0.5
+    self.view.addSubview(self.stellarImgView)
+}
