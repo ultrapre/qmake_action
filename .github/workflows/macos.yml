@@ -9,9 +9,10 @@ jobs:
     strategy:
       matrix:
         #qt_ver: [5.9.9, 5.12.10, 5.15.2]
-        build_target: qmake_action
         qt_ver: [5.15.2]
         qt_arch: [clang_64]
+    env:
+      targetName: qmake_action
     steps:
       - name: cacheQt
         id: MacosCacheQt
@@ -36,5 +37,5 @@ jobs:
       
       - name: Deploy app
         run: |
-          macdeployqt ${{ matrix.build_target }}.app -dmg
+          macdeployqt ${{ env.build_target }}.app -dmg
           ls -l
