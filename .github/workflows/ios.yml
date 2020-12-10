@@ -4,31 +4,38 @@ on:
     tags:
       - v*
   workflow_dispatch:
-  
-  
+
 jobs:
   build:
     name: Build
-    runs-on: macos-10.15
-    # 10.15
+    runs-on: macos-10.14
     strategy:
       matrix:
-        # qt_ver: [5.12.10, 5.15.2]
         qt_ver: [5.15.2]
         qt_target: [ios]
         target_app: [Sample]
     steps:
+      - name: Cache Qt
+        id: cache-qt
+        uses: actions/cache@v1
+        with:
+          path: ../Qt
+          key: ${{ runner.os }}-QtCache
       - name: Install Qt
-        # if: steps.cacheqt.outputs.cache-hit != 'true'
-        uses: jurplel/install-qt-action@v2.10.0
+        uses: jurplel/install-qt-action@v2
         with:
           # Version of Qt to install
           version: ${{ matrix.qt_ver }}
           # Target platform for build
           target: ${{ matrix.qt_target }}
+          # Architecture for Windows/Android
+          arch: ${{ matrix.qt_arch }}
+          modules: 'qtcharts qtwebengine qtscript'
+          cached: ${{ steps.cache-qt.outputs.cache-hit }}
       - uses: actions/checkout@v1
-        with:
-          fetch-depth: 1
+          with:
+            fetch-depth: 1
+            
       - name: build ios
         run: |
           sudo xcode-select -s '/Applications/Xcode_10.3.app'

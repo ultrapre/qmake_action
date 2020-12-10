@@ -4,19 +4,13 @@ on:
     tags:
       - v*
   workflow_dispatch:
-  #push:
-  #  paths-ignore:
-  #    - 'README.md'
-  #    - 'LICENSE'
-  #    - '.github/workflows/macos.yml'
-  #pull_request:
-  #  paths-ignore:
-  #    - 'README.md'
-  #    - 'LICENSE'
-  #    - '.github/workflows/macos.yml'
+
+env:
+  targetName: qmake_action
+
 jobs:
-  build:
-    name: Build
+  Build-MSVC:
+    name: Build-MSVC
     runs-on: windows-latest
     strategy:
       matrix:
@@ -32,8 +26,7 @@ jobs:
             msvc_arch: x86
             output_arch: x86
             qt_arch_install: msvc2019
-    env:
-      targetName: qmake_action
+    
     steps:
       - name: Install Qt
         uses: jurplel/install-qt-action@v2

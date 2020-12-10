@@ -1,0 +1,326 @@
+name: Build All
+on:
+  push:
+    tags:
+      - v*
+  workflow_dispatch:
+
+env:
+  targetName: qmake_action
+
+jobs:
+  Build-MSVC-Windows:
+    name: Build-MSVC-Windows
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        qt_ver: [5.15.2]
+        qt_target: [desktop]
+        qt_arch: [win64_msvc2019_64, win32_msvc2019]
+        include:
+          - qt_arch: win64_msvc2019_64
+            msvc_arch: x64
+            output_arch: x86_64
+            qt_arch_install: msvc2019_64
+          - qt_arch: win32_msvc2019
+            msvc_arch: x86
+            output_arch: x86
+            qt_arch_install: msvc2019
+    
+    steps:
+      - name: Cache Qt
+        id: cache-qt
+        uses: actions/cache@v1
+        with:
+          path: ../Qt
+          key: ${{ runner.os }}-QtCache
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v2
+        with:
+          # Version of Qt to install
+          version: ${{ matrix.qt_ver }}
+          # Target platform for build
+          target: ${{ matrix.qt_target }}
+          # Architecture for Windows/Android
+          arch: ${{ matrix.qt_arch }}
+          modules: 'qtcharts qtwebengine qtscript'
+          cached: ${{ steps.cache-qt.outputs.cache-hit }}
+      - uses: actions/checkout@v2
+          with:
+            fetch-depth: 1
+            submodules: true
+          
+      - name: Build
+        shell: cmd
+        env:
+          vc_arch: ${{ matrix.msvc_arch }}
+        run: |
+          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" %vc_arch%
+          mkdir build
+          cd build
+          qmake -r CONFIG+=release CONFIG+=qtquickcompiler ..\${{ env.targetName }}.pro
+          nmake
+          cd ..
+          
+      - name: Package
+        shell: cmd
+        run: |
+          windeployqt build\release\${{ env.targetName }}.exe
+          
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ env.targetName }}-${{ matrix.qt_target }}-${{ matrix.qt_arch }}
+          path: build\release
+
+
+##############################################
+  Build-MinGW-Windows:
+    name: Build-MinGW-Windows
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        qt_ver: [5.15.2]
+        qt_target: [desktop]
+        qt_arch: [mingw81_32, mingw81_64]
+    steps:
+      - name: Cache Qt
+        id: cache-qt
+        uses: actions/cache@v1
+        with:
+          path: ../Qt
+          key: ${{ runner.os }}-QtCache
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v2
+        with:
+          # Version of Qt to install
+          version: ${{ matrix.qt_ver }}
+          # Target platform for build
+          target: ${{ matrix.qt_target }}
+          # Architecture for Windows/Android
+          arch: ${{ matrix.qt_arch }}
+          modules: 'qtcharts qtwebengine qtscript'
+          cached: ${{ steps.cache-qt.outputs.cache-hit }}
+      - uses: actions/checkout@v2
+          with:
+            fetch-depth: 1
+            submodules: true
+            
+      # Build the project
+      - name: Build
+        shell: cmd
+        run: |
+          mkdir build
+          cd build
+          qmake -r CONFIG+=release CONFIG+=qtquickcompiler ..\${{ env.targetName }}.pro
+          make
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ env.targetName }}-win-${{ matrix.qt_target }}-${{ matrix.qt_arch }}
+          path: build\release
+###################
+  Build-IOS:
+    name: Build-IOS
+    runs-on: macos-10.14
+    strategy:
+      matrix:
+        qt_ver: [5.15.2]
+        qt_target: [ios]
+    steps:
+      - name: Cache Qt
+        id: cache-qt
+        uses: actions/cache@v1
+        with:
+          path: ../Qt
+          key: ${{ runner.os }}-QtCache
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v2
+        with:
+          # Version of Qt to install
+          version: ${{ matrix.qt_ver }}
+          # Target platform for build
+          target: ${{ matrix.qt_target }}
+          # Architecture for Windows/Android
+          arch: ${{ matrix.qt_arch }}
+          modules: 'qtcharts qtwebengine qtscript'
+          cached: ${{ steps.cache-qt.outputs.cache-hit }}
+      - uses: actions/checkout@v1
+          with:
+            fetch-depth: 1
+            submodules: true
+            
+      - name: Build
+        run: |
+          sudo xcode-select -s '/Applications/Xcode_10.3.app'
+          qmake -r -spec macx-ios-clang CONFIG+=release CONFIG+=iphoneos
+          make
+      - name: Package
+        run: |
+          ls -R
+          mkdir ${{ env.targetName }}
+          mkdir ${{ env.targetName }}/Payload
+          cp -r Release-iphonesimulator/${{ env.targetName }}.app ${{ env.targetName }}/Payload/${{ env.targetName }}.app
+          cd ${{ env.targetName }}
+          zip -r ${{ env.targetName }}-${{ matrix.qt_target }}-${{ matrix.xcode }}.ipa Payload
+      - uses: actions/upload-artifact@v2
+        with:
+          name: ${{ env.targetName }}-${{ matrix.qt_target }}-${{ matrix.xcode }}.ipa
+          path: ${{ env.targetName }}/${{ env.targetName }}-${{ matrix.qt_target }}-${{ matrix.xcode }}.ipa
+#####################
+  Build-Android-Linux:
+    name: Build-Android-Linux
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        qt_arch: [android_x86, android_armv7, android_arm64_v8a]
+        qt_ver: [5.15.1]
+        qt_target: [android]
+    steps:
+      - name: Cache Qt
+        id: cache-qt
+        uses: actions/cache@v1
+        with:
+          path: ../Qt
+          key: ${{ runner.os }}-QtCache
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v2
+        with:
+          # Version of Qt to install
+          version: ${{ matrix.qt_ver }}
+          # Target platform for build
+          target: ${{ matrix.qt_target }}
+          # Architecture for Windows/Android
+          arch: ${{ matrix.qt_arch }}
+          modules: 'qtcharts qtwebengine qtscript'
+          cached: ${{ steps.cache-qt.outputs.cache-hit }}
+      - uses: actions/checkout@v1
+          with:
+            fetch-depth: 1
+            submodules: true
+      - name: build apk
+        run: |
+          export ANDROID_SDK_ROOT=$ANDROID_HOME
+          export ANDROID_NDK_ROOT=$ANDROID_HOME/ndk-bundle
+          qmake
+          make -j12
+          make apk
+      - uses: actions/upload-artifact@v2
+        with:
+          name: ${{ env.targetName }}-${{ matrix.qt_target }}-${{ matrix.qt_arch }}
+          path: android-build/build/outputs/apk/debug/android-build-debug.apk
+############
+  Build-MacOS:
+    name: Build-MacOS
+    runs-on: macos-10.15
+    strategy:
+      matrix:
+        qt_ver: [5.15.2]
+        qt_arch: [clang_64]
+    steps:
+      - name: Cache Qt
+        id: cache-qt
+        uses: actions/cache@v1
+        with:
+          path: ../Qt
+          key: ${{ runner.os }}-QtCache
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v2
+        with:
+          # Version of Qt to install
+          version: ${{ matrix.qt_ver }}
+          # Target platform for build
+          target: ${{ matrix.qt_target }}
+          # Architecture for Windows/Android
+          arch: ${{ matrix.qt_arch }}
+          modules: 'qtcharts qtwebengine qtscript'
+          cached: ${{ steps.cache-qt.outputs.cache-hit }}
+      - uses: actions/checkout@v1
+          with:
+            fetch-depth: 1
+            submodules: true
+          
+      - name: Build macos
+        run: |
+          qmake
+          make
+          ls -l
+      - name: Deploy app
+        run: |
+          macdeployqt ${{ env.targetName }}.app -dmg
+          ls -l
+      - name: Upload artifact
+        uses: actions/upload-artifact@v1.0.0
+        with:
+          name: $${{ env.targetName }}-MacOS-${{ matrix.qt_arch }}
+          path: ${{ env.targetName }}.dmg
+##################
+  Build-Linux:
+    name: Build-Linux
+    runs-on: ubuntu-latest
+    steps:
+      - name: Update System
+        run: sudo apt-get update --fix-missing -y
+        
+      - name: Install Environment
+        run: sudo apt-get install gcc g++ libgl1-mesa-dev make wget -y
+      
+      - name: Cache Qt
+        id: cache-qt
+        uses: actions/cache@v1
+        with:
+          path: ../Qt
+          key: ${{ runner.os }}-QtCache
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v2
+        with:
+          cached: ${{ steps.cache-qt.outputs.cache-hit }}
+          version: 5.15.2
+          target: desktop
+          modules: 'qtcharts qtwebengine qtscript'
+      
+      - name: Pull Repositories
+        uses: actions/checkout@v1
+        with:
+          fetch-depth: 1
+
+      - name: Build
+        run: |
+          qmake
+          make
+          ls -l
+
+      - name: Deploy
+        continue-on-error: true
+        env:
+          outputdir: ${{ env.targetName }}-${{ steps.latest_release_info.outputs.tag_name }}-for-linux-x64
+          #linuxdeployqt_url: https://github.com/probonopd/linuxdeployqt/releases/download/6/linuxdeployqt-6-x86_64.AppImage
+          linuxdeployqt_url: https://github.com/probonopd/linuxdeployqt/releases/download/7/linuxdeployqt-7-x86_64.AppImage
+          linuxdeployqt: linuxdeployqt-7-x86_64.AppImage
+        run: |
+          export PATH=$PATH:$PWD
+          echo $PATH
+          pwd
+          mkdir ${{ env.outputdir }}
+          cp ${{ env.targetName }} ${{ env.outputdir }}
+          wget ${{ env.linuxdeployqt_url }}
+          ls -l
+          chmod a+x ${{ env.linuxdeployqt }}
+          ./${{ env.linuxdeployqt }} -version
+          ./${{ env.linuxdeployqt }} ${{ env.outputdir }}/${{ env.targetName }} -appimage
+          
+      - name: Packet with tar
+        env:
+          outputdir: ${{ env.targetName }}-${{ steps.latest_release_info.outputs.tag_name }}-for-linux-x64
+        run: |
+            tar -zcvf ${{ env.outputdir }}.tar.gz ${{ env.outputdir }}
+            ls -l
+      
+      - name: artifacts
+        env:
+          outputdir: ${{ env.targetName }}-${{ steps.latest_release_info.outputs.tag_name }}-for-linux-x64
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ env.outputdir }}-Linux
+          path: ${{ env.outputdir }}.tar.gz
