@@ -8,28 +8,58 @@ on:
 
 jobs:
   build:
-
+    name: Build
     runs-on: windows-latest
-    
+    strategy:
+      matrix:
+        qt_ver: [5.15.1]
+        qt_target: [desktop]
+        qt_arch: [win64_msvc2019_64, win32_msvc2019]
+        include:
+          - qt_arch: win64_msvc2019_64
+            msvc_arch: x64
+            output_arch: x86_64
+            qt_arch_install: msvc2019_64
+          - qt_arch: win32_msvc2019
+            msvc_arch: x86
+            output_arch: x86
+            qt_arch_install: msvc2019
+    env:
+      targetName: Sample
     steps:
-    - uses: actions/checkout@v2
-    - name: Cache Qt
-      id: cache-qt
-      uses: actions/cache@v1
-      with:
-        path: ../Qt
-        key: ${{ runner.os }}-QtCache
-    - name: Install Qt
-      uses: jurplel/install-qt-action@v2
-      with:
-        target: 'desktop'
-        version: '5.15.1'
-        modules: 'qtcharts qtwebengine qtscript'
-        cached: ${{ steps.cache-qt.outputs.cache-hit }}
-    - name: qmake
-      run: |
-        qmake
-        make
-    - name: show filetrees
-      run: |
-        tree
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v2
+        with:
+          version: ${{ matrix.qt_ver }}
+          target: ${{ matrix.qt_target }}
+          arch: ${{ matrix.qt_arch }}
+          modules: qtwebengine
+          
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+          submodules: true
+          
+      - name: build-msvc
+        shell: cmd
+        env:
+          vc_arch: ${{ matrix.msvc_arch }}
+        run: |
+          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" %vc_arch%
+          mkdir build
+          cd build
+          qmake -r CONFIG+=release CONFIG+=qtquickcompiler ..\${{ env.targetName }}.pro
+          nmake
+          cd ..
+          
+      - name: package
+        shell: cmd
+        run: |
+          windeployqt bin\${{ matrix.output_arch }}\${{ env.targetName }}.exe
+      - name: Upload artifact
+        uses: actions/upload-artifact@v1.0.0
+        with:
+          name: ${{ env.targetName }}-${{ matrix.qt_arch }}
+          path: bin\${{ matrix.output_arch }}
+          
+          
