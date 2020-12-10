@@ -29,7 +29,7 @@ jobs:
             output_arch: x86
             qt_arch_install: msvc2019
     env:
-      targetName: Sample
+      targetName: qmake_action
     steps:
       - name: Install Qt
         uses: jurplel/install-qt-action@v2
