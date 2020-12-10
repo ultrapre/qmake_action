@@ -36,10 +36,10 @@ jobs:
           ls -l
       - name: Deploy app
         run: |
-          macdeployqt ${{env.build_target}}.app -dmg
+          macdeployqt ${{ env.targetName }}.app -dmg
           ls -l
       - name: Upload artifact
         uses: actions/upload-artifact@v1.0.0
         with:
           name: ${{ env.targetName }}-${{ matrix.qt_arch }}
-          path: ${{env.build_target}}.dmg
+          path: ${{ env.targetName }}.dmg
