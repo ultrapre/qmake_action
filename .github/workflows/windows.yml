@@ -1,15 +1,19 @@
 name: Windows
 on:
   push:
-    paths-ignore:
-      - 'README.md'
-      - 'LICENSE'
-      - '.github/workflows/macos.yml'
-  pull_request:
-    paths-ignore:
-      - 'README.md'
-      - 'LICENSE'
-      - '.github/workflows/macos.yml'
+    tags:
+      - v*
+  workflow_dispatch:
+  #push:
+  #  paths-ignore:
+  #    - 'README.md'
+  #    - 'LICENSE'
+  #    - '.github/workflows/macos.yml'
+  #pull_request:
+  #  paths-ignore:
+  #    - 'README.md'
+  #    - 'LICENSE'
+  #    - '.github/workflows/macos.yml'
 jobs:
   build:
     name: Build
