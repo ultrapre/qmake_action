@@ -1,11 +1,15 @@
-name: Build for Windows
-
+name: Windows
 on:
   push:
-    tags:
-      - v*
-  workflow_dispatch:
-
+    paths-ignore:
+      - 'README.md'
+      - 'LICENSE'
+      - '.github/workflows/macos.yml'
+  pull_request:
+    paths-ignore:
+      - 'README.md'
+      - 'LICENSE'
+      - '.github/workflows/macos.yml'
 jobs:
   build:
     name: Build
@@ -61,5 +65,3 @@ jobs:
         with:
           name: ${{ env.targetName }}-${{ matrix.qt_arch }}
           path: bin\${{ matrix.output_arch }}
-          
-          
