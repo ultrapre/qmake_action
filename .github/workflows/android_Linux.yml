@@ -34,8 +34,8 @@ jobs:
           modules: 'qtcharts qtwebengine qtscript'
           cached: ${{ steps.cache-qt.outputs.cache-hit }}
       - uses: actions/checkout@v1
-          with:
-            fetch-depth: 1
+        with:
+          fetch-depth: 1
       - name: build apk
         run: |
           export ANDROID_SDK_ROOT=$ANDROID_HOME

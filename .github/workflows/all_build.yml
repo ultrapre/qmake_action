@@ -46,9 +46,9 @@ jobs:
           modules: 'qtcharts qtwebengine qtscript'
           cached: ${{ steps.cache-qt.outputs.cache-hit }}
       - uses: actions/checkout@v2
-          with:
-            fetch-depth: 1
-            submodules: true
+        with:
+          fetch-depth: 1
+          submodules: true
           
       - name: Build
         shell: cmd
@@ -102,9 +102,9 @@ jobs:
           modules: 'qtcharts qtwebengine qtscript'
           cached: ${{ steps.cache-qt.outputs.cache-hit }}
       - uses: actions/checkout@v2
-          with:
-            fetch-depth: 1
-            submodules: true
+        with:
+          fetch-depth: 1
+          submodules: true
             
       # Build the project
       - name: Build
@@ -145,10 +145,10 @@ jobs:
           arch: ${{ matrix.qt_arch }}
           modules: 'qtcharts qtwebengine qtscript'
           cached: ${{ steps.cache-qt.outputs.cache-hit }}
-      - uses: actions/checkout@v1
-          with:
-            fetch-depth: 1
-            submodules: true
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+          submodules: true
             
       - name: Build
         run: |
@@ -194,10 +194,10 @@ jobs:
           arch: ${{ matrix.qt_arch }}
           modules: 'qtcharts qtwebengine qtscript'
           cached: ${{ steps.cache-qt.outputs.cache-hit }}
-      - uses: actions/checkout@v1
-          with:
-            fetch-depth: 1
-            submodules: true
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+          submodules: true
       - name: build apk
         run: |
           export ANDROID_SDK_ROOT=$ANDROID_HOME
@@ -235,10 +235,10 @@ jobs:
           arch: ${{ matrix.qt_arch }}
           modules: 'qtcharts qtwebengine qtscript'
           cached: ${{ steps.cache-qt.outputs.cache-hit }}
-      - uses: actions/checkout@v1
-          with:
-            fetch-depth: 1
-            submodules: true
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+          submodules: true
           
       - name: Build macos
         run: |
@@ -281,9 +281,10 @@ jobs:
           modules: 'qtcharts qtwebengine qtscript'
       
       - name: Pull Repositories
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
         with:
           fetch-depth: 1
+          submodules: true
 
       - name: Build
         run: |
