@@ -1,8 +1,6 @@
 name: PackMe
 on:
   push:
-    tags:
-      - v*
   workflow_dispatch:
 
 env:
