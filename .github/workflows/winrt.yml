@@ -1,81 +1,82 @@
-name: CI build
+name: Build WinRT
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
 
 jobs:
-  build:
-    strategy:
-      fail-fast: false
-      matrix:
-        version:
-          - 5.15.0
-        platform:
-          - gcc_64
-          - android
-          - wasm_32
-          - msvc2019_64
-          - msvc2019
-          - winrt_x64_msvc2019
-          - winrt_x86_msvc2019
-          - winrt_armv7_msvc2019
-          - mingw81_64
-#          - mingw81_32
-          - clang_64
-          - ios
+  build_linux:
+    runs-on: ubuntu-18.04
 
-        include:
-          - platform: gcc_64
-            os: ubuntu-latest
-          - platform: android
-            os: ubuntu-latest
-          - platform: wasm_32
-            os: ubuntu-latest
-            emsdk: sdk-fastcomp-1.39.8-64bit
-          - platform: msvc2019_64
-            os: windows-latest
-          - platform: msvc2019
-            os: windows-latest
-          - platform: winrt_x64_msvc2019
-            os: windows-latest
-          - platform: winrt_x86_msvc2019
-            os: windows-latest
-          - platform: winrt_armv7_msvc2019
-            os: windows-latest
-          - platform: mingw81_64
-            os: windows-latest
-#          - platform: mingw81_32
-#            os: windows-latest
-          - platform: clang_64
-            os: macos-latest
-          - platform: ios
-            os: macos-latest
-
-    runs-on: ${{matrix.os}}
     steps:
-      - uses: actions/checkout@v1
-        with:
-          submodules: recursive
-      - uses: actions/setup-python@v1
-      - uses: mymindstorm/setup-emsdk@v5
-        if: matrix.platform == 'wasm_32'
-        with:
-          version: ${{matrix.emsdk}}
-          actions-cache-folder: emsdk-cache
-      - uses: Skycoder42/action-setup-qt@master
-        id: qt
-        with:
-          version: ${{matrix.version}}
-          platform: ${{matrix.platform}}
-      - name: qmake
-        run: qmake CONFIG+=install_ok QT_PLATFORM=${{matrix.platform}}
-      - name: make qmake_all
-        run: ${{steps.qt.outputs.make}} qmake_all
-      - name: make
-        run: ${{steps.qt.outputs.make}}
-      - name: make check
-        run: ${{steps.qt.outputs.make}} ${{steps.qt.outputs.testflags}} check
-      
-      - uses: actions/upload-artifact@v1
-        with:
-          name: Package-${{matrix.platform}}
-          path: ./
+    - name: checkout
+      uses: actions/checkout@v2
+    - name: Linux Environment Setup - install software-properties-common - ppa pre-req
+      run: sudo apt-get install software-properties-common -y -qq 
+    - name: Linux Environment Setup - install qt ppa
+      run: sudo add-apt-repository ppa:beineri/opt-qt-5.12.0-bionic -y && sudo apt-get update -y
+    - name: Linux Environment Setup - install python3
+      run:  sudo apt-get install python3-pip --yes
+    - name: Install QT 5.12.x - part 1
+      run: sudo apt-get install qt5-default qt5-qmake qt512base qt512tools libqwt-qt5-6 qt512serialport qt512svg qt512multimedia qt512connectivity qt512webengine libqt5webkit5-dev qt512charts-no-lgpl qt512networkauth-no-lgpl qt512translations qtdeclarative5-dev-tools libqwt-qt5-dev qtwebengine5-dev -y
+    - name: Install QT 5.12.x - part 2
+      run: sudo /opt/qt512/bin/./qt512-env.sh
+    - name: Create Makefile
+      run:  |
+        qtchooser -list-versions
+        qmake -version
+        qmake
+    - name: Run MakeFile
+      run: make
+    - name: upload artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: linux
+        path: build/
+
+  build_windows:
+    runs-on: windows-latest
+
+    steps:
+    - name: MSVC Environment Setup
+      uses: ilammy/msvc-dev-cmd@v1
+    - name: checkout
+      uses: actions/checkout@v2
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v2.8.0
+      with:
+        modules: 'qtcharts qtwebengine'
+
+    - name: Create Makefile
+      run: 
+        qmake -spec winrt-x64-msvc2017
+    - name: Run MakeFile
+      run: make
+    - name: upload artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: windows
+        path: build\ 
+
+
+  build_mac:
+    runs-on: macos-latest
+
+    steps:
+    - name: checkout
+      uses: actions/checkout@v2
+    - name: QT Environment Setup part 1
+      run: brew install qt5 qwt
+    - name: QT Environment Setup part 2
+      run: brew link qt5 --force
+    - name: Create Makefile
+      run: qmake
+    - name: Run MakeFile
+      run: make
+    - name: upload artifact
+      uses: actions/upload-artifact@v1
+      with:
+        name: macos
+        path: build/ 
