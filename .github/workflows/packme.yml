@@ -1,0 +1,31 @@
+name: PackMe
+on:
+  push:
+    tags:
+      - v*
+  workflow_dispatch:
+
+env:
+  targetName: qmake_action
+
+jobs:
+  Build-MSVC:
+    name: Build-MSVC
+    runs-on: windows-latest
+    
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+          submodules: true
+          
+      #- name: package
+      #  shell: cmd
+      #  run: |
+      #    windeployqt build\release\${{ env.targetName }}.exe
+      #    
+      - name: Upload artifact
+        uses: actions/upload-artifact@v1.0.0
+        with:
+          name: Package
+          path: ./*
