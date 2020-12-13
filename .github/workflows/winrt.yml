@@ -34,7 +34,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: linux
-        path: build/
+        path: ./
 
   build_windows:
     runs-on: windows-latest
@@ -45,7 +45,7 @@ jobs:
     - name: checkout
       uses: actions/checkout@v2
     - name: Install Qt
-      uses: jurplel/install-qt-action@v2.8.0
+      uses: jurplel/install-qt-action@v2
       with:
         modules: 'qtcharts qtwebengine'
 
@@ -58,7 +58,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: windows
-        path: build\ 
+        path: .\
 
 
   build_mac:
@@ -79,4 +79,4 @@ jobs:
       uses: actions/upload-artifact@v1
       with:
         name: macos
-        path: build/ 
+        path: ./ 
