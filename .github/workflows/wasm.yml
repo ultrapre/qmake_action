@@ -64,12 +64,11 @@ jobs:
         ls -lrt
         make
         ls -lrt
-        cd ..
-        zip qmake_action_wasm_5_14_2.zip qmake_action
+        zip qmake_action_wasm_5_14_2.zip ./*
         
     - uses: actions/upload-artifact@v1
       with:
         name: qmake_action_wasm_5_14_2.zip
-        path: ../qmake_action_wasm_5_14_2.zip
+        path: qmake_action_wasm_5_14_2.zip
 
   
