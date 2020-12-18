@@ -2,8 +2,6 @@ name: TestCI
 
 on:
   push:
-    branches:
-    - testci
   workflow_dispatch:
 
 jobs:
@@ -45,7 +43,9 @@ jobs:
         Get-Content "$env:temp\vcvars.txt" | Foreach-Object { if ($_ -match "^(.*?)=(.*)$") { Set-Content "env:\$($matches[1])" $matches[2] } }
         ..\Qt5_binaries\bin\qmake
         jom -j4
-    - name: Deploy binaries (Windows)
-      if: matrix.os == 'windows-2019'
-      run: |
-        ./tools/deployment/deploy_win_static.bat
+        ls . -R
+    - name: Upload artifact
+      uses: actions/upload-artifact@v1
+      with:
+        name: static-pack
+        path: ./
