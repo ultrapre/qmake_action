@@ -50,7 +50,8 @@ jobs:
         cd msvc
         cmake -DCMAKE_INSTALL_PREFIX=D:/a/stellarium/stellarium/stellarium-bin -DQT_QMAKE_EXECUTABLE=D:\a\qmake_action\Qt5_binaries\bin\qmake.exe -DCMAKE_PREFIX_PATH=D:\a\qmake_action\Qt5_binaries -G "Visual Studio 16 2019" -A x64 ../..
         # cmake --build .
-        jom -j4
+        #jom -j4
+        nmake
         ls . -R
     - name: Upload artifact
       uses: actions/upload-artifact@v1
