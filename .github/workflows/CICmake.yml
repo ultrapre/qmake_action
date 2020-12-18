@@ -48,7 +48,7 @@ jobs:
         cd build
         md msvc
         cd msvc
-        cmake -DCMAKE_INSTALL_PREFIX=D:/a/stellarium/stellarium/stellarium-bin -DQT_QMAKE_EXECUTABLE=D:\a\qmake_action\msvc2019-static.Qt5.15.1\bin\qmake.exe -DCMAKE_PREFIX_PATH=D:\a\qmake_action\Qt5_binaries -G "Visual Studio 16 2019" -A x64 ../..
+        cmake -DCMAKE_INSTALL_PREFIX=D:/a/stellarium/stellarium/stellarium-bin -DQT_QMAKE_EXECUTABLE=D:\a\qmake_action\Qt5_binaries\bin\qmake.exe -DCMAKE_PREFIX_PATH=D:\a\qmake_action\Qt5_binaries -G "Visual Studio 16 2019" -A x64 ../..
         # cmake --build .
         jom -j4
         ls . -R
