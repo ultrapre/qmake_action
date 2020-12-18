@@ -28,8 +28,8 @@ jobs:
       if: matrix.os == 'windows-2019'
       run: |
         # Download the pre-built static version of Qt, which was created with the generateBinaries.yml workflow
-        Invoke-WebRequest https://github.com/silas1037/qt-static-action/releases/download/v1.0/msvc2019-static.Qt5.15.1.7z -OutFile .\msvc2019-static.Qt5.15.1.7z
-        7z a "msvc2019-static.Qt5.15.1.7z" ..\
+        Invoke-WebRequest https://www.dropbox.com/s/z745z290s9pknih/qt5_5152_static_binaries_win.zip?dl=1 -OutFile .\qt5_5152_static_binaries_win.zip
+        expand-archive -path "qt5_5152_static_binaries_win.zip" -destinationpath "..\"
     - name: Install jom (Windows)
       if: matrix.os == 'windows-2019'
       run: |
@@ -49,7 +49,7 @@ jobs:
         md msvc
         cd msvc
         cmake -DCMAKE_INSTALL_PREFIX=D:/a/stellarium/stellarium/stellarium-bin -G "Visual Studio 16 2019" -A x64 ../..
-        cmake --build . -DQT_QMAKE_EXECUTABLE:STRING=D:/a/qmake_action/msvc2019-static.Qt5.15.1/bin/qmake.exe -DCMAKE_PREFIX_PATH:STRING=D:/a/qmake_action/msvc2019-static.Qt5.15.1
+        cmake --build . -DQT_QMAKE_EXECUTABLE:STRING=D:/a/qmake_action/msvc2019-static.Qt5.15.1/bin/qmake.exe -DCMAKE_PREFIX_PATH:STRING=D:/a/qmake_action/Qt5_binaries
         jom -j4
         ls . -R
     - name: Upload artifact
