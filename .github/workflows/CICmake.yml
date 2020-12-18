@@ -1,0 +1,59 @@
+name: CI static win
+
+on:
+  push:
+    branches:
+    - master
+
+jobs:
+
+  QtStatic:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        os: [windows-2019]
+
+    steps:
+    - name: Clone repository
+      uses: actions/checkout@v2
+    - name: Install Python 3.7 version
+      uses: actions/setup-python@v1
+      with:
+        python-version: '3.7'
+        architecture: 'x64'
+    - name: Install Qt (Windows)
+      if: matrix.os == 'windows-2019'
+      run: |
+        # Download the pre-built static version of Qt, which was created with the generateBinaries.yml workflow
+        Invoke-WebRequest https://github.com/silas1037/qt-static-action/releases/download/v1.0/msvc2019-static.Qt5.15.1.7z -OutFile .\msvc2019-static.Qt5.15.1.7z
+        7z a "msvc2019-static.Qt5.15.1.7z" ..\
+    - name: Install jom (Windows)
+      if: matrix.os == 'windows-2019'
+      run: |
+        Invoke-WebRequest https://www.dropbox.com/s/dku543gtw7ik7hr/jom.zip?dl=1 -OutFile .\jom.zip
+        expand-archive -path "jom.zip"
+        echo "D:\a\qmake_action\qmake_action\jom" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+		ls ..
+    - name: Configure and compile
+      if: matrix.os == 'windows-2019'
+      run: |
+        # Setup VS compiler
+        cmd.exe /c "call `"C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat`" && set > %temp%\vcvars.txt"
+        Get-Content "$env:temp\vcvars.txt" | Foreach-Object { if ($_ -match "^(.*?)=(.*)$") { Set-Content "env:\$($matches[1])" $matches[2] } }
+        md stellarium-bin
+        md build
+        cd build
+        md msvc
+        cd msvc
+        cmake -DCMAKE_INSTALL_PREFIX=D:/a/stellarium/stellarium/stellarium-bin -G "Visual Studio 16 2019" -A x64 ../..
+        cmake --build . -DQT_QMAKE_EXECUTABLE:STRING=D:/a/qmake_action/msvc2019-static.Qt5.15.1/bin/qmake.exe -DCMAKE_PREFIX_PATH:STRING=D:/a/qmake_action/msvc2019-static.Qt5.15.1
+        jom -j4
+        ls . -R
+    - name: Upload artifact
+      uses: actions/upload-artifact@v1
+      with:
+        name: static-pack
+        path: ./release
