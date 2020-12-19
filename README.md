@@ -16,3 +16,4 @@ https://github.com/WebcamDownloader/WebcamDownloader
 
 https://github.com/qsaker/QtSwissArmyKnife
 
+https://github.com/qsaker/QtCiExample
