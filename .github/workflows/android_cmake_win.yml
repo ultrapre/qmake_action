@@ -30,7 +30,7 @@ jobs:
       with:
         target: 'android_armv7'
         arch: 'android_armv7'
-        version: '5.15.1'
+        version: '5.12.10'
         modules: 'qtcharts qtwebengine qtscript'
         cached: ${{ steps.cache-qt.outputs.cache-hit }}
     - name: Configure
