@@ -46,8 +46,8 @@ jobs:
           -DCMAKE_FIND_ROOT_PATH:STRING=$Qt5_DIR \
           -DCMAKE_INSTALL_PREFIX:STRING=android-build/assets \
           -DCMAKE_PREFIX_PATH:STRING=$Qt5_DIR \
-          -DQT_QMAKE_EXECUTABLE:STRING=$Qt5_DIR/bin/qmake \
-          -D
+          -DQT_QMAKE_EXECUTABLE:STRING=$Qt5_DIR/bin/qmake 
+          
     - name: Compile
       run: |
         pwd
