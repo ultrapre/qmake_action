@@ -51,7 +51,7 @@ jobs:
     - name: Compile
       run: |
         pwd
-        make
+        # make
         # make install
         make apk
     - name: show filetrees
