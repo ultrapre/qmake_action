@@ -35,10 +35,7 @@ jobs:
         cached: ${{ steps.cache-qt.outputs.cache-hit }}
     - name: Configure
       run: |
-        cmake . \
-          -DCMAKE_FIND_ROOT_PATH=$Qt5_DIR \
-          -DCMAKE_PREFIX_PATH=$Qt5_DIR \
-          -DQT_QMAKE_EXECUTABLE=$Qt5_DIR/bin/qmake.exe
+        cmake .
     - name: Compile
       run: |
         pwd
