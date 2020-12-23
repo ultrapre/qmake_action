@@ -1,4 +1,4 @@
-name: TestCI
+name: MSVC static qmake
 
 on:
   push:
