@@ -41,7 +41,7 @@ jobs:
         pwd
         make
         # make install
-        make apk
+        # make apk
     - name: show filetrees
       run: |
         ls -R
