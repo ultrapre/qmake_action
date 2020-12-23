@@ -36,12 +36,6 @@ jobs:
     - name: Configure
       run: |
         cmake . \
-          -DANDROID_ABI=armeabi-v7a \
-          -DANDROID_BUILD_ABI_arm64-v8a=OFF \
-          -DANDROID_BUILD_ABI_armeabi-v7a=ON \
-          -DANDROID_BUILD_ABI_x86=OFF \
-          -DANDROID_BUILD_ABI_x86_64=OFF \
-          -DANDROID_NATIVE_API_LEVEL=16 \
           -DANDROID_NDK:PATH=$ANDROID_SDK_ROOT/ndk-bundle \
           -DANDROID_SDK:PATH=$ANDROID_SDK_ROOT \
           -DANDROID_STL=c++_shared \
