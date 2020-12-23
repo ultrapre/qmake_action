@@ -29,6 +29,7 @@ jobs:
       uses: jurplel/install-qt-action@v2
       with:
         target: 'android'
+        arch: 'android'
         version: '5.15.1'
         modules: 'qtcharts qtwebengine qtscript'
         cached: ${{ steps.cache-qt.outputs.cache-hit }}
