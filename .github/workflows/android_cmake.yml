@@ -56,8 +56,8 @@ jobs:
       run: |
         pwd
         make
-        mkdir android-build/build/outputs/apk/debug/android-build-debug/lib/armeabi-v7a
-        cp libcrypto_1_1.so libssl_1_1.so android-build/build/outputs/apk/debug/android-build-debug/lib/armeabi-v7a/
+        mkdir $PWD/android-build/build/outputs/apk/debug/android-build-debug/lib/armeabi-v7a
+        cp libcrypto_1_1.so libssl_1_1.so $PWD/android-build/build/outputs/apk/debug/android-build-debug/lib/armeabi-v7a/
         # make install
         make apk
     - name: show filetrees
