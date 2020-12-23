@@ -36,7 +36,6 @@ jobs:
     - name: Configure
       run: |
         cmake . \
-          -DANDROID_NDK:PATH=$ANDROID_SDK_ROOT/ndk-bundle \
           -DANDROID_SDK:PATH=$ANDROID_SDK_ROOT \
           -DANDROID_STL=c++_shared \
           -DCMAKE_BUILD_TYPE=Debug \
