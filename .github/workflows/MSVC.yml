@@ -1,4 +1,4 @@
-name: Windows QMake
+name:MSVC QMake
 on:
   push:
     tags:
