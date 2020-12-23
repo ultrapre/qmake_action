@@ -36,7 +36,6 @@ jobs:
     - name: Configure
       run: |
         cmake . \
-          -DANDROID_STL=c++_shared \
           -DCMAKE_FIND_ROOT_PATH=$Qt5_DIR \
           -DCMAKE_INSTALL_PREFIX=android-build/assets \
           -DCMAKE_PREFIX_PATH=$Qt5_DIR \
