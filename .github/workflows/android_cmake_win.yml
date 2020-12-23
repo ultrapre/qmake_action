@@ -28,7 +28,7 @@ jobs:
     - name: Install Qt
       uses: jurplel/install-qt-action@v2
       with:
-        target: 'android'
+        target: 'android_armv7'
         arch: 'android_armv7'
         version: '5.15.1'
         modules: 'qtcharts qtwebengine qtscript'
