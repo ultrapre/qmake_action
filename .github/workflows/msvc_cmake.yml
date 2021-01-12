@@ -1,0 +1,53 @@
+name: MSVC CMake
+
+on:
+  push:
+    tags:
+      - v*
+  workflow_dispatch:
+
+env:
+  targetName: qmake_action
+
+jobs:
+  Build-MSVC:
+    name: Build-MSVC
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        qt_ver: [5.15.1]
+        qt_target: [desktop]
+        qt_arch: [win64_msvc2019_64, win32_msvc2019]
+        include:
+          - qt_arch: win64_msvc2019_64
+            msvc_arch: x64
+            output_arch: x86_64
+            qt_arch_install: msvc2019_64
+          - qt_arch: win32_msvc2019
+            msvc_arch: x86
+            output_arch: x86
+            qt_arch_install: msvc2019
+    
+    steps:
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v2
+        with:
+          version: ${{ matrix.qt_ver }}
+          target: ${{ matrix.qt_target }}
+          arch: ${{ matrix.qt_arch }}
+          modules: qtwebengine
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+          submodules: true
+      - name: Configure and compile
+        run: |
+          # Setup VS compiler
+          cmd.exe /c "call `"C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat`" && set > %temp%\vcvars.txt"
+          Get-Content "$env:temp\vcvars.txt" | Foreach-Object { if ($_ -match "^(.*?)=(.*)$") { Set-Content "env:\$($matches[1])" $matches[2] } }
+          md build
+          cd build
+          md msvc
+          cd msvc
+          cmake -G "Visual Studio 16 2019" -A x64 ../..
+          cmake --build . 
