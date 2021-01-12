@@ -1,11 +1,6 @@
 name: Build for Android CMake
 
 on:
-  push:
-    tags:
-      - v*
-    branches:
-      - master
   workflow_dispatch:
 
 jobs:
