@@ -1,6 +1,9 @@
 name: WASM CI
 
 on:
+  push:
+    #tags:
+    #  - v*
   #push:
   #  branches: [ master ]
   pull_request:
@@ -11,7 +14,11 @@ jobs:
   linux_wasm_5_14_2:
   
     runs-on: ubuntu-latest
-      
+    
+    strategy:
+      matrix:
+        target_app: [qmake_action]
+    
     steps:
     - uses: actions/checkout@v2
     - uses: mymindstorm/setup-emsdk@v7
@@ -46,7 +53,7 @@ jobs:
         em++ --version
         which em++
         echo $PATH
-        #python3 -m aqt install -O /home/runner/work/qmake_action/Qt 5.14.2 linux desktop wasm_32 -m qtscript qtscripttools
+        #python3 -m aqt install -O /home/runner/work/${{ matrix.target_app }}/Qt 5.14.2 linux desktop wasm_32 -m qtscript qtscripttools
         emsdk install sdk-fastcomp-1.38.27-64bit
         emsdk activate sdk-fastcomp-1.38.27-64bit
         echo $PATH
@@ -60,15 +67,15 @@ jobs:
         which qmake
         qmake -v
         ../Qt/5.14.2/wasm_32/bin/qmake -v
-        ../Qt/5.14.2/wasm_32/bin/qmake -r qmake_action.pro
+        ../Qt/5.14.2/wasm_32/bin/qmake -r ${{ matrix.target_app }}.pro
         ls -lrt
         make
         ls -lrt
-        zip qmake_action_wasm_5_14_2.zip ./*
+        zip ${{ matrix.target_app }}_wasm.zip ./*
         
     - uses: actions/upload-artifact@v1
       with:
-        name: qmake_action_wasm_5_14_2.zip
-        path: qmake_action_wasm_5_14_2.zip
+        name: ${{ matrix.target_app }}_wasm.zip
+        path: ${{ matrix.target_app }}_wasm.zip
 
   
