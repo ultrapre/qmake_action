@@ -26,7 +26,7 @@ jobs:
           # Version of Qt to install
           version: ${{ matrix.qt_ver }}
           # Target platform for build
-          target: ${{ matrix.qt_target }}
+          # target: ${{ matrix.qt_target }}
           # Architecture for Windows/Android
           arch: ${{ matrix.qt_arch }}
           modules: 'qtcharts qtwebengine qtscript'
