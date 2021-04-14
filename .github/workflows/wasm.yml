@@ -1,4 +1,4 @@
-name: WASM qmake 0
+name: WASM qmake
 
 on:
   push:
