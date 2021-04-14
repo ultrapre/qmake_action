@@ -1,4 +1,4 @@
-name: CI static win
+name: MSVC static CMake
 
 on:
   workflow_dispatch:

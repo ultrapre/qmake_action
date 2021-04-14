@@ -1,4 +1,4 @@
-name: MSVC static pack build (warn)
+name: MSVC static QMake
 
 on:
   push:
