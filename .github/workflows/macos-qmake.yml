@@ -1,4 +1,4 @@
-name: macos qmake
+name: Macos qmake
 on: 
   push:
     tags:

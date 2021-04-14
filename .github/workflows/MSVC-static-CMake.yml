@@ -1,4 +1,4 @@
-name: MSVC static CMake
+name: MSVC static CMake 0
 
 on:
   workflow_dispatch:

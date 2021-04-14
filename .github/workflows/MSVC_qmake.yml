@@ -1,4 +1,4 @@
-name: MSVC QMake
+name: MSVC QMake 0
 
 on:
   push:

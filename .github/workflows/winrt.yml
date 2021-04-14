@@ -1,4 +1,4 @@
-name: WinRT Qmake
+name: WinRT qmake 0
 
 on:
   workflow_dispatch:

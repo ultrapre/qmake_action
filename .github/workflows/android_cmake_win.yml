@@ -1,4 +1,4 @@
-name: Build Android CMake for Win
+name: Android CMake Win 0
 
 on:
   push:
